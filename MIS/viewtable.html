@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl border border-gray-300">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-800" id="docTitle">Transaction Details</h1>
+            <img src="San_Pablo_City_Laguna_seal.svg" alt="Government Logo" class="w-16 h-16">
+        </div>
+
+        <table class="w-full border-collapse border border-gray-400 text-sm">
+            <tbody>
+                <tr>
+                    <td class="border border-gray-400 p-3 font-semibold bg-blue-100 w-1/4">Office or Division</td>
+                    <td class="border border-gray-400 p-3 text-gray-700" id="officeCell">N/A</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-400 p-3 font-semibold bg-blue-100">Classification</td>
+                    <td class="border border-gray-400 p-3 text-gray-700" id="classificationCell">N/A</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-400 p-3 font-semibold bg-blue-100">Type of Transaction</td>
+                    <td class="border border-gray-400 p-3 text-gray-700" id="transactionTypeCell">N/A</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-400 p-3 font-semibold bg-blue-100">Who may avail</td>
+                    <td class="border border-gray-400 p-3 text-gray-700" id="whoMayAvailCell">N/A</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="text-lg font-semibold mt-6 text-gray-800">TRANSACTION DETAILS</h2>
+        <table class="w-full border-collapse border border-gray-400 text-sm">
+            <thead>
+                <tr class="bg-blue-200 font-semibold text-center text-gray-800">
+                    <th class="border border-gray-400 p-3 w-1/5">TRANSACTION NUMBER</th>
+                    <th class="border border-gray-400 p-3 w-1/5">CLIENT STEPS</th>
+                    <th class="border border-gray-400 p-3 w-2/5">AGENCY ACTIONS</th>
+                    <th class="border border-gray-400 p-3 w-1/5">FEES TO BE PAID</th>
+                    <th class="border border-gray-400 p-3 w-1/5">PROCESSING TIME</th>
+                    <th class="border border-gray-400 p-3 w-1/5">PERSON RESPONSIBLE</th>
+                </tr>
+            </thead>
+            <tbody id="requestTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Retrieve the submittedRequests from localStorage
+            const submittedRequests = JSON.parse(localStorage.getItem("submittedRequests")) || [];
+
+            // If no requests exist, show the "No transactions found" message
+            if (submittedRequests.length === 0) {
+                document.getElementById("requestTableBody").innerHTML = `
+                    <tr><td colspan="6" class="text-center p-4 text-gray-500">No transactions found.</td></tr>
+                `;
+                return;
+            }
+
+            // Retrieve the selected document title from localStorage
+            const documentTitle = localStorage.getItem("selectedDocumentTitle");
+
+            if (!documentTitle) {
+                console.error("No document title found in localStorage.");
+                return;
+            }
+
+            // Filter requests based on the selected document title
+            const filteredRequests = submittedRequests.filter(request => request.documentTitle === documentTitle);
+
+            // Set the document title header
+            document.getElementById("docTitle").textContent = documentTitle;
+
+            // If no transactions found for this document title, show a message
+            if (filteredRequests.length === 0) {
+                document.getElementById("requestTableBody").innerHTML = `
+                    <tr><td colspan="6" class="text-center p-4 text-gray-500">No transactions found for "${documentTitle}".</td></tr>
+                `;
+                return;
+            }
+
+            // Populate the office details with data from the first request
+            const firstRequest = filteredRequests[0];
+            document.getElementById("officeCell").textContent = firstRequest.officeDivision || "N/A";
+            document.getElementById("classificationCell").textContent = firstRequest.documentTitle || "N/A";
+            document.getElementById("transactionTypeCell").textContent = firstRequest.transactionType || "N/A";
+            document.getElementById("whoMayAvailCell").textContent = firstRequest.personResponsible || "N/A";
+
+            // Populate the transaction details table
+            const requestTableBody = document.getElementById("requestTableBody");
+
+            filteredRequests.forEach(request => {
+                const requestRow = document.createElement("tr");
+
+                requestRow.innerHTML = `
+                    <td class="border border-gray-400 p-3">${request.transactionNumber || "N/A"}</td>
+                    <td class="border border-gray-400 p-3">${request.clientSteps || "N/A"}</td>
+                    <td class="border border-gray-400 p-3">${request.agencyActions || "N/A"}</td>
+                    <td class="border border-gray-400 p-3">${request.fees || "N/A"}</td>
+                    <td class="border border-gray-400 p-3">${request.processingTime || "N/A"}</td>
+                    <td class="border border-gray-400 p-3">${request.personResponsible || "N/A"}</td>
+                `;
+                requestTableBody.appendChild(requestRow);
+            });
+        });
+    </script>
+
+</body>
+</html>
